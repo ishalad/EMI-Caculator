@@ -31,6 +31,6 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/loan-calculator', [EMILoanCalculatorController::class, 'index'])->name('loan_calculation');
 Route::post('/loan-calculator/calculate', [EMILoanCalculatorController::class, 'calculateEMI'])->name('calculate');
-Route::get('/loan-calculator/history/{id}', [EMILoanCalculatorController::class, 'getHistory']);
+Route::post('/loan-calculator/history', [EMILoanCalculatorController::class, 'getHistory'])->name('result_EMI');
 
 require __DIR__.'/auth.php';

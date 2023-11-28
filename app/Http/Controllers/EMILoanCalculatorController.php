@@ -46,12 +46,12 @@ class EMILoanCalculatorController extends Controller
 
     }
 
-    public function getHistory($id)
+    public function getHistory(Request $request)
 	{
-	    $calculation = LoanCalculation::findOrFail($id);
+	    $calculation = LoanCalculation::findOrFail($request->id);
 
 	    return response()->json([
-	        'emiData' => $calculation->emiData,
+	        'emiData' => $calculation,
 	    ]);
 	}
 

@@ -2,6 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>EMI Calculator</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -38,6 +39,7 @@
                         <th scope="col">Rate Of Interest (% per annum)</th>
                         <th scope="col">Loan Duration (in Months)</th>
                         <th scope="col">EMI Amount (per month) </th>
+                        <th scope="col">Details</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,11 +49,14 @@
                     <td>{{$item->interest_rate}}</td>
                     <td>{{$item->duration}}</td>
                     <td>{{$item->emi_amount}}</td>
+                    <td>  <a href="JavaScript:Void(0);" class="btn btn-primary show_result"  data-id="{{$item->id}}"> show </a> </td>
                 </tr>
                 @endforeach
                 </tbody>
             </table>
         </div>
+        {{-- {{ $history->links() }} --}}
+    <div id="emiTableContainer"></div>
     </div>
 
 
@@ -88,6 +93,44 @@
                 }
             });
         });
+        $('.show_result').click(function(e){
+            e.preventDefault();
+            $.ajax({
+                url: '{{route('result_EMI')}}',
+                type: 'POST',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    id: $(this).attr('data-id'),
+                },
+                dataType:'json',
+                success: function (data) {
+                    var principal = data.emiData.principal_amount;
+                    var interestRate =data.emiData.interest_rate;
+                    var duration = data.emiData.duration;
+                    var emi = data.emiData.emi_amount;
+                    createEMITable(duration, emi);
+                    console.log(data);
+                },
+                error: function(error) {
+                    console.log(error)
+                }
+            })
+        });
+
+        function createEMITable(duration, emi) {
+            $('#emiTableContainer').empty();
+
+            var tableHTML = '<table border="1" class="table"><thead><tr><th>Month</th><th>EMI Amount</th></tr></thead><tbody>';
+
+            for (var i = 1; i <= duration; i++) {
+                tableHTML += '<tr><td>' + i + '</td><td>' + emi.toFixed(2) + '</td></tr>';
+            }
+
+            tableHTML += '</tbody></table>';
+
+            // Append the table to the container
+            $('#emiTableContainer').html(tableHTML);
+        }
     });
 </script>
 </body>
