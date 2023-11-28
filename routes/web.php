@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EMILoanCalculatorController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/loan-calculator', [EMILoanCalculatorController::class, 'index']);
+Route::post('/loan-calculator/calculate', [EMILoanCalculatorController::class, 'calculate']);
+Route::get('/loan-calculator/history/{id}', [EMILoanCalculatorController::class, 'getHistory']);
