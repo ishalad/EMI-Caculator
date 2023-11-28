@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EMI Calculator</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 </head>
 <body>
     <div class="container mt-5">
@@ -30,7 +31,26 @@
         </form>
 
         <div id="result" class="mt-4">
-            <!-- Display the calculated EMI here -->
+            <table class="table" id="history">
+                <thead>
+                    <tr>
+                        <th scope="col" >Principal Amount</th>
+                        <th scope="col">Rate Of Interest (% per annum)</th>
+                        <th scope="col">Loan Duration (in Months)</th>
+                        <th scope="col">EMI Amount (per month) </th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach($history as $item)
+                <tr>
+                    <td>{{$item->principal_amount}}</td>
+                    <td>{{$item->interest_rate}}</td>
+                    <td>{{$item->duration}}</td>
+                    <td>{{$item->emi_amount}}</td>
+                </tr>
+                @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -38,54 +58,32 @@
     
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <script>
     $(document).ready(function () {
-        $('#calculateForm').submit(function (e) {
+        $('#emiForm').submit(function (e) {
             e.preventDefault();
 
-            // Serialize the form data
             var formData = $(this).serialize();
 
-            // Send an AJAX request to the server
             $.ajax({
                 url: '/loan-calculator/calculate',
                 type: 'POST',
                 data: formData,
                 dataType: 'json',
                 success: function (data) {
-                    // Handle the JSON response
-                    // Update the result section with the calculated data
-                    $('#result').html('<p>EMI: ' + data.emiData + '</p>');
-
-                    // Update the history section with the new calculation
-                    $('#history').append('<li><a href="#" class="history-link" data-id="' + data.history.id + '">Calculation ' + data.history.id + '</a></li>');
+                    toastr.success(data.message);
+                    let recentrow = '<tr>' +
+                                '<td >'+ data.history.principal_amount + '</td>' +
+                                '<td>'+ data.history.interest_rate+'</td>' +
+                                '<td>'+data.history.duration +'</td>' +
+                                '<td>'+data.history.emi_amount +'</td>' +
+                                '</tr>';
+                    $('#result tbody').prepend(recentrow);
                 },
                 error: function (error) {
-                    // Handle errors
-                    console.log(error);
-                }
-            });
-        });
-
-        // Handle history links
-        $(document).on('click', '.history-link', function (e) {
-            e.preventDefault();
-
-            // Get the calculation ID from the data attribute
-            var calculationId = $(this).data('id');
-
-            // Send an AJAX request to get the details for the selected calculation
-            $.ajax({
-                url: '/loan-calculator/history/' + calculationId,
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    // Handle the JSON response
-                    // Update the result section with the selected calculation data
-                    $('#result').html('<p>EMI: ' + data.emiData + '</p>');
-                },
-                error: function (error) {
-                    // Handle errors
+                    toastr.error(error.message);
                     console.log(error);
                 }
             });
@@ -94,5 +92,4 @@
 </script>
 </body>
 </html>
-<!-- Your input form goes here -->
 

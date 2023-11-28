@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('emi_calculations', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->integer('principal_amount');
+            $table->float('interest_rate');
+            $table->integer('duration');
+            $table->float('emi_amount');
             $table->timestamps();
         });
     }
